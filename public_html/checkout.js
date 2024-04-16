@@ -37,24 +37,24 @@ const urlParams = new URLSearchParams(window.location.search);
 
 
 let amount = 500
-let options = {
-    "key": "rzp_test_URpF9Gekqvl3jD", // Enter the Key ID generated from the Dashboard
-    "amount": amount * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-    "currency": "INR",
-    "name": "IndiHerbs Medicorp", //your business name
-    "description": "Test Transaction",
-    "image": "./assets/img/logo/logo.ico",
-    //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-    "handler": function (response) {
-        console.log(response.razorpay_payment_id + "Payment successfull");
-        window.sessionStorage.href = 'products.html'
-    },
-    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-        "name": "Gaurav Kumar", //your customer's name
-        "email": "gaurav.kumar@example.com",
-        "contact": "9000090000"  //Provide the customer's phone number for better conversion rates 
-    }
-};
+// let options = {
+//     "key": "rzp_test_URpF9Gekqvl3jD", // Enter the Key ID generated from the Dashboard
+//     "amount": amount * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+//     "currency": "INR",
+//     "name": "IndiHerbs Medicorp", //your business name
+//     "description": "Test Transaction",
+//     "image": "./assets/img/logo/logo.ico",
+//     //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+//     "handler": function (response) {
+//         // console.log(response.razorpay_payment_id + "Payment successfull");
+//         window.sessionStorage.href = 'products.html'
+//     },
+//     "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+//         "name": "Gaurav Kumar", //your customer's name
+//         "email": "gaurav.kumar@example.com",
+//         "contact": "9000090000"  //Provide the customer's phone number for better conversion rates 
+//     }
+// };
 
 
 /**
@@ -84,7 +84,7 @@ async function postPageLoadEventListener() {
 confirmLogoutBtn.addEventListener("click", () => {
     signOut(auth)
         .then(() => {
-            console.log("User logged out successfully");
+            // console.log("User logged out successfully");
             window.location.href = "login.html";
         })
         .catch((error) => {
@@ -106,7 +106,7 @@ onAuthStateChanged(auth, async (user) => {
 
         // Store UID in local storage
         localStorage.setItem('currentUserUID', user.uid);
-        console.log("user uid ", user.uid)
+        // console.log("user uid ", user.uid)
 
         // Check if local storage has cart information
         document.querySelectorAll('.logout-btn').forEach((btn) => {
@@ -149,7 +149,7 @@ if (urlParams.has('decryptedResponse')) {
     const decryptedResponse = urlParams.get('decryptedResponse');
     const currentDate = new Date(); // Generate current date
     const currentTime = new Date().toLocaleTimeString(); // Generate current time
-    
+
     handlePaymentResponse(decryptedResponse, currentDate, currentTime);
 } else {
     // If bill is found in session storage, proceed
@@ -157,7 +157,7 @@ if (urlParams.has('decryptedResponse')) {
         bill = JSON.parse(sessionStorage.getItem('bill'));
         sessionStorage.removeItem('bill');
         // console.log(bill)
-    } else {    
+    } else {
         // Redirect to cart.html if bill is not found in session storage
         window.location.href = 'cart.html';
     }
@@ -190,7 +190,7 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
         });
 
         // Log the parsed response
-        console.log('Parsed Response:', response);
+        // console.log('Parsed Response:', response);
 
         // Extract the paidAmount value from the response
         const paidAmount = parseFloat(response.paidAmount); // Assuming paidAmount is a float value
@@ -241,8 +241,8 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
                     orderDate: currentDate.toLocaleDateString(),
                     orderTime: currentTime,
                 });
-                console.log("Order details stored successfully.");
-                console.log(" response :", response);
+                // console.log("Order details stored successfully.");
+                // console.log(" response :", response);
             } catch (error) {
                 console.error("Error storing order details:", error);
             }
@@ -268,6 +268,9 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
         } else {
             // Payment failed
             displayMessage('Payment Failed. Please try again.', 'danger');
+            setTimeout(() => {
+                window.location.href = 'cart.html   '
+            }, 3000);
         }
     } catch (error) {
         console.error('Error handling payment response:', error);
@@ -1289,22 +1292,22 @@ function generateOrderId() {
 
 
 //     //create suceess callback function
-    // options.handler = async function (response) {
-    //     showOverlay()
-    //     cartList.forEach(item => {
-    //         // console.log('from forEach')
-    //         const res = productSnapshot.docs.findIndex(product => product.data().productId === item.productId)
-    //         if (res >= 0) {
-    //             // console.log('from forEach if ')
-    //             const res1 = cartList.findIndex(item1 => item1.productId === item.productId)
-    //             // console.log('from forEach if if')
-    //             if (res1 >= 0) {
-    //                 // console.log(cartList[res1], productSnapshot.docs[res].data().price)
-    //                 cartList[res1].price = productSnapshot.docs[res].data().price
-    //                 cartList[res1].name = productSnapshot.docs[res].data().name
-    //             }
-    //         }
-    //     })
+// options.handler = async function (response) {
+//     showOverlay()
+//     cartList.forEach(item => {
+//         // console.log('from forEach')
+//         const res = productSnapshot.docs.findIndex(product => product.data().productId === item.productId)
+//         if (res >= 0) {
+//             // console.log('from forEach if ')
+//             const res1 = cartList.findIndex(item1 => item1.productId === item.productId)
+//             // console.log('from forEach if if')
+//             if (res1 >= 0) {
+//                 // console.log(cartList[res1], productSnapshot.docs[res].data().price)
+//                 cartList[res1].price = productSnapshot.docs[res].data().price
+//                 cartList[res1].name = productSnapshot.docs[res].data().name
+//             }
+//         }
+//     })
 //         // console.log(1)
 //         await setDoc(doc(collection(firestore, 'users', auth.currentUser.uid, 'orders'), orderId), {
 //             orderId: orderId,
@@ -1421,11 +1424,11 @@ async function payment(e) {
         return;
     }
     const addressId = addressCard.getAttribute('data-id');
-    console.log(" address id :", addressId, addressCard);
+    // console.log(" address id :", addressId, addressCard);
 
     localStorage.setItem('addressId', addressId)
 
-    alert("selected address ")
+    // alert("selected address ")
     try {
         // Retrieve user data dynamically
         const userSnapshot = await getDoc(doc(firestore, 'users', auth.currentUser.uid));
@@ -1480,7 +1483,7 @@ async function payment(e) {
         form.submit();
 
         // Log success message
-        console.log('Payment request sent successfully.');
+        // console.log('Payment request sent successfully.');
 
         // Hide overlay
         hideOverlay();
@@ -1547,76 +1550,75 @@ function hideOverlay() {
 
 // -------------------------------openstreetmap----------------------------------------
 // To get user location
-     
-        let locationbutton = document.getElementById("get-loc");
-        let locationdiv = document.getElementById("location-detailsLabel");
-    
-        locationbutton.addEventListener("click", () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showlocation, checkerror);
-            } else {
-                locationdiv.innerText = "the browser does not support geolocation";
-            }
-        });
-    
-        const checkerror = (error) => {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    locationdiv.innerText = "please allow access to location";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    locationdiv.innerText = "location information unavailable";
-                    break;
-                case error.TIMEOUT:
-                    locationdiv.innerText = "this request to get user location is timed out";
-                    break;
-                
-            }
-        };
-    
-        const showlocation = async (position) => {
-            let response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json&accept-language=en`);
-            let data = await response.json();
-    
-            // console.log(data);
-            try {
-                displayMessage('Location found', 'success');
-                locationdiv.innerHTML = `${
-                  data.address.neighbourhood
-                    ? `${data.address.neighbourhood},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-                    : data.address.road
-                      ? `${data.address.road},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-                      : data.address.city_district
+
+let locationbutton = document.getElementById("get-loc");
+let locationdiv = document.getElementById("location-detailsLabel");
+
+locationbutton.addEventListener("click", () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showlocation, checkerror);
+    } else {
+        locationdiv.innerText = "the browser does not support geolocation";
+    }
+});
+
+const checkerror = (error) => {
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            locationdiv.innerText = "please allow access to location";
+            break;
+        case error.POSITION_UNAVAILABLE:
+            locationdiv.innerText = "location information unavailable";
+            break;
+        case error.TIMEOUT:
+            locationdiv.innerText = "this request to get user location is timed out";
+            break;
+
+    }
+};
+
+const showlocation = async (position) => {
+    let response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json&accept-language=en`);
+    let data = await response.json();
+
+    // console.log(data);
+    try {
+        displayMessage('Location found', 'success');
+        locationdiv.innerHTML = `${data.address.neighbourhood
+                ? `${data.address.neighbourhood},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
+                : data.address.road
+                    ? `${data.address.road},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
+                    : data.address.city_district
                         ? `${data.address.city_district},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
                         : `${data.address.suburb},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-                }`;
-              } catch (error) {
-                displayMessage('Unable to retrieve location. Please reload the page.', 'danger');
-        
-                
-                console.error('Error:', error);
-              }
-              
-            // locationdiv.innerHTML = `<h4>Location found</h4>\n${
-            //     data.address.neighbourhood
-            //       ? `${data.address.neighbourhood},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-            //       : data.address.road
-            //         ? `${data.address.road},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-            //         : data.address.city_district
-            //           ? `${data.address.city_district},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-            //           : `${data.address.suburb},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-            //   }`;
+            }`;
+    } catch (error) {
+        displayMessage('Unable to retrieve location. Please reload the page.', 'danger');
 
-    
-            // Add an event listener to the "Confirm Address" button
-            document.getElementById("confirmAddressBtn").addEventListener("click", () => {
-                // Populate the form fields based on the condition
-                document.getElementById("roadAreaColony").value = data.address.neighbourhood || data.address.road || data.address.city_district || data.address.suburb;
-                document.getElementById("pinCode").value = data.address.postcode;
-                document.getElementById("city").value = data.address.city;
-                document.getElementById("state").value = data.address.state;
-                
-                // Close the modal after confirming the address
-                $('#location-details').modal('hide');
-            });
-        };
+
+        console.error('Error:', error);
+    }
+
+    // locationdiv.innerHTML = `<h4>Location found</h4>\n${
+    //     data.address.neighbourhood
+    //       ? `${data.address.neighbourhood},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
+    //       : data.address.road
+    //         ? `${data.address.road},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
+    //         : data.address.city_district
+    //           ? `${data.address.city_district},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
+    //           : `${data.address.suburb},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
+    //   }`;
+
+
+    // Add an event listener to the "Confirm Address" button
+    document.getElementById("confirmAddressBtn").addEventListener("click", () => {
+        // Populate the form fields based on the condition
+        document.getElementById("roadAreaColony").value = data.address.neighbourhood || data.address.road || data.address.city_district || data.address.suburb;
+        document.getElementById("pinCode").value = data.address.postcode;
+        document.getElementById("city").value = data.address.city;
+        document.getElementById("state").value = data.address.state;
+
+        // Close the modal after confirming the address
+        $('#location-details').modal('hide');
+    });
+};
