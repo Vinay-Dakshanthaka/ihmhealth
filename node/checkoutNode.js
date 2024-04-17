@@ -11,7 +11,7 @@ app.set("view engine", "html");
 app.engine("html", require("ejs").renderFile);
 
 const corsOptions = {
-    origin: ['http://ihmhealth.in'],
+    origin: ['https://ihmhealth.in'],
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   };
   
@@ -70,7 +70,7 @@ app.post("/initPgReq", (req, res) => {
       const clientTxnId = randomStr(20, "12345abcde");
       const transUserName = process.env.TRANS_USERNAME;
       const transUserPassword = process.env.TRANS_USER_PASSWORD;
-      const callbackUrl = "http://api.ihmhealth.in/getPgRes";
+      const callbackUrl = "https://api.ihmhealth.in/getPgRes";
       // const callbackUrl = "http://localhost:3000/getPgRes";
       const channelId = "W";
       const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1";
@@ -109,7 +109,7 @@ app.post("/getPgRes", async (req, res) => {
       console.log("decryptedResponse :: " + decryptedResponse);
 
       // Redirect the user to the checkout page with the decrypted response as a query parameter
-      res.redirect(`http://ihmhealth.in/checkout.html?decryptedResponse=${encodeURIComponent(decryptedResponse)}`);
+      res.redirect(`https://ihmhealth.in/checkout.html?decryptedResponse=${encodeURIComponent(decryptedResponse)}`);
       // res.redirect(`http://127.0.0.1:5500/public_html/checkout.html?decryptedResponse=${encodeURIComponent(decryptedResponse)}`);
     });
   } catch (error) {
