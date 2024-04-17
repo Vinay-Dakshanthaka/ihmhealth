@@ -3,13 +3,22 @@ const app = express();
 const axios = require("axios");
 const { exec } = require("child_process"); // Added child_process module for opening URLs
 const bodyParser = require("body-parser");
+const cors = require("cors"); // Import the cors module
 
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.set("view engine", "html");
 app.engine("html", require("ejs").renderFile);
-const cors = require("cors"); // Import the cors module
 
-app.use(cors()); 
+const corsOptions = {
+    // origin: 'https://www.laragrooming.com',
+    origin: ['http://ihmhealth.in'],
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  };
+  
+// Enable CORS 
+app.use(cors(corsOptions));
+
+// app.use(cors()); 
 
 const http = require("http");
 var querystring = require("querystring");
@@ -61,7 +70,7 @@ app.post("/initPgReq", (req, res) => {
       const clientTxnId = randomStr(20, "12345abcde");
       const transUserName = "spuser_2013";
       const transUserPassword = "RIADA_SP336";
-      const callbackUrl = "http://127.0.0.1:3000/getPgRes";
+      const callbackUrl = "http://api.ihmhealth.in/getPgRes";
       const channelId = "W";
       const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1";
       const mcc = "5666";
@@ -99,7 +108,7 @@ app.post("/getPgRes", async (req, res) => {
       console.log("decryptedResponse :: " + decryptedResponse);
 
       // Redirect the user to the checkout page with the decrypted response as a query parameter
-      res.redirect(`http://localhost:5501/checkout.html?decryptedResponse=${encodeURIComponent(decryptedResponse)}`);
+      res.redirect(`http://ihmhealth.in/checkout.html?decryptedResponse=${encodeURIComponent(decryptedResponse)}`);
     });
   } catch (error) {
     console.error(error);

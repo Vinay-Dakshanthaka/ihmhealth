@@ -1442,7 +1442,8 @@ async function payment(e) {
         showOverlay();
 
         // Make a POST request to the backend to fetch the data from SabPaisa
-        const response = await fetch('http://localhost:3000/initPgReq', {
+        // const response = await fetch('http://localhost:3000/initPgReq', {
+        const response = await fetch('http://api.ihmhealth.in/initPgReq', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
