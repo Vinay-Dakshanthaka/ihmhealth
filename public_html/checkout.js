@@ -177,6 +177,8 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
         // Decode the URL-encoded decryptedResponse
         const decodedResponse = decodeURIComponent(decryptedResponse);
 
+        // console.log("Decoded Response :", decodedResponse)
+
         // Split the decoded response into key-value pairs
         const keyValuePairs = decodedResponse.split('&');
 
@@ -1428,6 +1430,10 @@ async function payment(e) {
 
     localStorage.setItem('addressId', addressId)
 
+    const addressSnapshot = await getDoc(doc(firestore, 'users', auth.currentUser.uid, 'addresses', addressId));
+// Extract the address data
+const addressData = addressSnapshot.data();
+
     // alert("selected address ")
     try {
         // Retrieve user data dynamically
@@ -1436,7 +1442,9 @@ async function payment(e) {
         const payerEmail = userSnapshot.data().email;
         const payerMobile = userSnapshot.data().phoneNumber;
         const amount = bill.total;
-        const clientCode = "TM001";
+        const clientCode = "PAKH00";
+        // const clientCode = "TM001";
+
 
         // Display overlay
         showOverlay();
@@ -1452,7 +1460,7 @@ async function payment(e) {
                 payerName: payerName,
                 payerEmail: payerEmail,
                 payerMobile: payerMobile,
-                payerAddress: doc(firestore, 'users', auth.currentUser.uid, 'addresses', addressId),
+                payerAddress: addressData,
                 amount: amount,
                 clientCode: clientCode
             })

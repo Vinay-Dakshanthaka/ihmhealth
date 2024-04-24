@@ -4,6 +4,9 @@ const axios = require("axios");
 const { exec } = require("child_process"); // Added child_process module for opening URLs
 const bodyParser = require("body-parser");
 const cors = require("cors"); 
+const http = require("http");
+var querystring = require("querystring");
+const crypto = require("crypto");
 require('dotenv').config();
 
 app.use(bodyParser.json()); // Parse JSON request bodies
@@ -20,9 +23,6 @@ app.use(cors(corsOptions));
 
 // app.use(cors()); 
 
-const http = require("http");
-var querystring = require("querystring");
-const crypto = require("crypto");
 
 const algorithm = "aes-128-cbc";
 var authKey = process.env.AUTH_KEY;
@@ -73,16 +73,21 @@ app.post("/initPgReq", (req, res) => {
       const callbackUrl = "https://api.ihmhealth.in/getPgRes";
       // const callbackUrl = "http://localhost:3000/getPgRes";
       const channelId = "W";
-      const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1";
+      // const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1"; //for testing 
+      const spURL = "https://securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1";
       const mcc = "5666";
-      const transData = new Date();
+      const transData = new Date(); 
 
       // Construct the string for request...
-      const stringForRequest = `payerName=${payerName}&payerEmail=${payerEmail}&payerAddress=${payerAddress}&payerMobile=${payerMobile}&clientTxnId=${clientTxnId}&amount=${amount}&clientCode=${clientCode}&transUserName=${transUserName}&transUserPassword=${transUserPassword}&callbackUrl=${callbackUrl}&channelId=${channelId}&mcc=${mcc}&transData=${transData}`;
+      // const stringForRequest = `payerName=${payerName}&payerEmail=${payerEmail}&payerAddress=${payerAddress}&payerMobile=${payerMobile}&clientTxnId=${clientTxnId}&amount=${amount}&clientCode=${clientCode}&transUserName=${transUserName}&transUserPassword=${transUserPassword}&callbackUrl=${callbackUrl}&channelId=${channelId}&mcc=${mcc}&transData=${transData}`;
+      // Construct the string for request...
+      const stringForRequest = `payerName=${payerName}&payerEmail=${payerEmail}&payerAddress=${JSON.stringify(payerAddress)}&payerMobile=${payerMobile}&clientTxnId=${clientTxnId}&amount=${amount}&clientCode=${clientCode}&transUserName=${transUserName}&transUserPassword=${transUserPassword}&callbackUrl=${callbackUrl}&channelId=${channelId}&mcc=${mcc}&transData=${transData}`;
 
       // Encrypt the stringForRequest
       const encryptedStringForRequest = encrypt(stringForRequest);
+      console.log("client transaction Id :",clientTxnId)
 
+      console.log("encrypted data :", encryptedStringForRequest)
       // Send the data to the frontend
       res.json({
           spURL: spURL,
