@@ -36,14 +36,24 @@ import {
  * */
 
 
+// const firebaseConfig = {
+//     apiKey: "AIzaSyBrIAlkIyp5ALsv5RslbXA1oQVQL3eKhig",
+//     authDomain: "pharma-ecom-app.firebaseapp.com",
+//     projectId: "pharma-ecom-app",
+//     storageBucket: "pharma-ecom-app.appspot.com",
+//     messagingSenderId: "798776981223",
+//     appId: "1:798776981223:web:16f92da76fe7c2f1cf9442"
+// };
+
 const firebaseConfig = {
-    apiKey: "AIzaSyBrIAlkIyp5ALsv5RslbXA1oQVQL3eKhig",
-    authDomain: "pharma-ecom-app.firebaseapp.com",
-    projectId: "pharma-ecom-app",
-    storageBucket: "pharma-ecom-app.appspot.com",
-    messagingSenderId: "798776981223",
-    appId: "1:798776981223:web:16f92da76fe7c2f1cf9442"
-};
+    apiKey: "AIzaSyAuIdbfzhOHC-RZb4k_CmETElH0f4j7l5g",
+    authDomain: "indiherbs-ecom-app.firebaseapp.com",
+    projectId: "indiherbs-ecom-app",
+    storageBucket: "indiherbs-ecom-app.appspot.com",
+    messagingSenderId: "349149240886",
+    appId: "1:349149240886:web:e357550decccc23f7f4297",
+  };
+  
 //global
 var userData = null;
 const app = initializeApp(firebaseConfig);
