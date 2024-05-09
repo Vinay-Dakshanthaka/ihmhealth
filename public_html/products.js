@@ -416,7 +416,7 @@ async function fetchAndDisplayProducts(customQuery = false, customDocs = null) {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="gi-pro-content">
+                                            <div class="gi-pro-content add-to-cart">
                                                 <h5 class="gi-pro-title"><a href="#">${productData.name}</a></h5>
                                                 <h5 class="gi-pro-title"><a href="#"><i>${productData.tagLine}</i></a></h5>
                                                 <div class="gi-info"><strong>Description:</strong><p>${productDescriptionPoints}</p></div>
