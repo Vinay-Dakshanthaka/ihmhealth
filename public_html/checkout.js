@@ -1419,7 +1419,7 @@ function generateOrderId() {
 
 
 async function payment(e) {
-    alert("inside payment function  ")
+    // alert("inside payment function  ")
     e.preventDefault(); // Prevent default form submission
     const addressCard = document.querySelector('.selected-address');
     if (!addressCard) {
