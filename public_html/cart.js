@@ -418,7 +418,7 @@ async function fetchAndDisplayProducts() {
                 tableRow.querySelector('.dec').addEventListener('click', decreaseQuantity.bind(this, productData))
 
                 await checkoutSummary()
-                // console.log("2.1")
+		 // console.log("2.1")
             });
 
             stopProductLoader()
@@ -639,6 +639,7 @@ async function removeProduct(productId, e) {
         showEmptyCart();
     }
     await updateCart();
+    window.location.reload();
 }
 
 /**
