@@ -428,19 +428,37 @@ async function getOrderDetailsForTracking(){
         await updateTrackingLOrderStatus(orderData.status)
     }
 
-    else{
+    else {
         // console.log("else")
         const orderSnapshot = await getDocs(query(
             collection(firestore, 'users', userId, 'orders'),
             where('orderId', '==', orderId)
         ));
         const orderData = orderSnapshot.docs[0].data();
+        console.log("order data : ", orderData.orderDate);
+    
         const giOrderId = document.querySelector('.gi-order-id');
-        giOrderId.textContent = orderData.orderId
-        const trackerOrderId = document.getElementById('track-order-id')
-        trackerOrderId.textContent = orderData.orderId
-        await updateTrackingLOrderStatus(orderData.status)
-    }   
+        giOrderId.textContent = orderData.orderId;
+    
+        const trackerOrderId = document.getElementById('track-order-id');
+        trackerOrderId.textContent = orderData.orderId;
+    
+        // Calculate delivery date
+        const orderDate = new Date(orderData.orderDate);
+        const deliveryDate = new Date(orderDate);
+        deliveryDate.setDate(orderDate.getDate() + 10);
+    
+        // Format delivery date
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDeliveryDate = deliveryDate.toLocaleDateString('en-US', options);
+    
+        // Display delivery date
+        const expectedDeliveryDateElement = document.getElementById('expected-delivery-date');
+        expectedDeliveryDateElement.textContent = formattedDeliveryDate;
+    
+        await updateTrackingLOrderStatus(orderData.status);
+    }
+       
 }
 
  /**

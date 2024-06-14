@@ -68,11 +68,76 @@ function fetchAndDisplayUserData() {
         getDocs(usersRef)
             .then((querySnapshot) => {
                 const userDetails = document.getElementById('userDetailsData');
+                const users = [];
+    
                 querySnapshot.forEach((doc) => {
                     const userData = doc.data();
-                    const userRow = createTableRow(userData, doc);
-                    userDetails.appendChild(userRow);
+                    users.push({ userData, doc });
                 });
+    
+                const rowsPerPage = 10;
+                let currentPage = 1;
+    
+                function displayPage(page) {
+                    userDetails.innerHTML = '';
+                    const start = (page - 1) * rowsPerPage;
+                    const end = start + rowsPerPage;
+                    const paginatedUsers = users.slice(start, end);
+    
+                    paginatedUsers.forEach(({ userData, doc }) => {
+                        const userRow = createTableRow(userData, doc);
+                        userDetails.appendChild(userRow);
+                    });
+    
+                    updatePagination(page);
+                }
+    
+                function updatePagination(page) {
+                    const pagination = document.getElementById('pagination');
+                    pagination.innerHTML = '';
+    
+                    const totalPages = Math.ceil(users.length / rowsPerPage);
+    
+                    const prevButton = document.createElement('button');
+                    prevButton.textContent = '←';
+                    prevButton.className = 'arrow-button';
+                    prevButton.disabled = page === 1;
+                    prevButton.addEventListener('click', () => {
+                        if (currentPage > 1) {
+                            currentPage--;
+                            displayPage(currentPage);
+                        }
+                    });
+                    pagination.appendChild(prevButton);
+    
+                    for (let i = 1; i <= totalPages; i++) {
+                        const pageButton = document.createElement('button');
+                        pageButton.textContent = i;
+                        pageButton.className = 'page-button';
+                        if (i === page) {
+                            pageButton.classList.add('active');
+                        }
+                        pageButton.addEventListener('click', () => {
+                            currentPage = i;
+                            displayPage(currentPage);
+                        });
+                        pagination.appendChild(pageButton);
+                    }
+    
+                    const nextButton = document.createElement('button');
+                    nextButton.textContent = '→';
+                    nextButton.className = 'arrow-button';
+                    nextButton.disabled = page === totalPages;
+                    nextButton.addEventListener('click', () => {
+                        if (currentPage < totalPages) {
+                            currentPage++;
+                            displayPage(currentPage);
+                        }
+                    });
+                    pagination.appendChild(nextButton);
+                }
+    
+                displayPage(currentPage);
             })
             .catch((error) => {
                 console.error("Error fetching user data:", error);
