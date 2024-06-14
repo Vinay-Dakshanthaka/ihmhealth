@@ -1419,6 +1419,7 @@ function generateOrderId() {
 
 
 async function payment(e) {
+    alert("inside payment function  ")
     e.preventDefault(); // Prevent default form submission
     const addressCard = document.querySelector('.selected-address');
     if (!addressCard) {
@@ -1460,7 +1461,7 @@ const addressData = addressSnapshot.data();
                 payerName: payerName,
                 payerEmail: payerEmail,
                 payerMobile: payerMobile,
-                payerAddress: addressData,
+                payerAddress: addressData.addressId,
                 amount: amount,
                 clientCode: clientCode
             })

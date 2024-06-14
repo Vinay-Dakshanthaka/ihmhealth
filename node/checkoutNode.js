@@ -65,7 +65,7 @@ app.post("/initPgReq", (req, res) => {
       // Extract the necessary data from the request body
       console.log("start :")
       const { payerName, payerEmail, payerMobile, amount, clientCode, payerAddress } = req.body;
-    console.log("body :", req.body)
+      console.log("body :", req.body)
       // Other constant values
       const clientTxnId = randomStr(20, "12345abcde");
       const transUserName = process.env.TRANS_USERNAME;

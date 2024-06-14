@@ -374,8 +374,8 @@ async function embedBill() {
     // orderDelivery.textContent = orderDetails.bill.deliveryFee
     orderSubtotal.textContent = orderDetails.bill.subTotal
 
-    console.log("orderdetails bill, ", orderDetails.bill)
-    console.log("orderdetails, ", orderDetails)
+    // console.log("orderdetails bill, ", orderDetails.bill)
+    // console.log("orderdetails, ", orderDetails)
 }
 
 async function embedMop() {
@@ -386,7 +386,7 @@ async function embedMop() {
     orderMopId.textContent = orderDetails.mop[1].clientTxnId
 
 
-    console.log("order details ", orderDetails)
+    // console.log("order details ", orderDetails)
 }   
 
 
@@ -399,7 +399,7 @@ async function embedOrderedProducts() {
 
     const orderedProducts = orderDetails.productsDetails
 
-    console.log("ordered products ", orderedProducts)
+    // console.log("ordered products ", orderedProducts)
 
     const allPromises = orderedProducts.map(async (item) => {
         const productDetails = await getProductDetails(item.productId)
