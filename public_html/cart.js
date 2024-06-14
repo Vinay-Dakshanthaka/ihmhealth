@@ -639,6 +639,7 @@ async function removeProduct(productId, e) {
         showEmptyCart();
     }
     await updateCart();
+    window.location.reload();
 }
 
 /**
