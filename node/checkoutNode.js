@@ -1,9 +1,10 @@
 const express = require("express");
+const nodemailer = require("nodemailer")
 const app = express();
 const axios = require("axios");
 const { exec } = require("child_process"); // Added child_process module for opening URLs
 const bodyParser = require("body-parser");
-const cors = require("cors"); 
+const cors = require("cors");
 const http = require("http");
 var querystring = require("querystring");
 const crypto = require("crypto");
@@ -17,11 +18,11 @@ const corsOptions = {
     origin: ['https://ihmhealth.in'],
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   };
-  
+
 // Enable CORS 
 app.use(cors(corsOptions));
 
-// app.use(cors()); 
+// app.use(cors());
 
 
 const algorithm = "aes-128-cbc";
@@ -62,41 +63,41 @@ app.use(express.static(__dirname));
 
 app.post("/initPgReq", (req, res) => {
   try {
-      // Extract the necessary data from the request body
-      console.log("start :")
-      const { payerName, payerEmail, payerMobile, amount, clientCode, payerAddress } = req.body;
-      console.log("body :", req.body)
-      // Other constant values
-      const clientTxnId = randomStr(20, "12345abcde");
-      const transUserName = process.env.TRANS_USERNAME;
-      const transUserPassword = process.env.TRANS_USER_PASSWORD;
-      const callbackUrl = "https://api.ihmhealth.in/getPgRes";
-      // const callbackUrl = "http://localhost:3000/getPgRes";
-      const channelId = "W";
-      // const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1"; //for testing 
-      const spURL = "https://securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1";
-      const mcc = "5666";
-      const transData = new Date(); 
+    // Extract the necessary data from the request body
+    console.log("start :")
+    const { payerName, payerEmail, payerMobile, amount, clientCode, payerAddress } = req.body;
+    console.log("body :", req.body)
+    // Other constant values
+    const clientTxnId = randomStr(20, "12345abcde");
+    const transUserName = process.env.TRANS_USERNAME;
+    const transUserPassword = process.env.TRANS_USER_PASSWORD;
+    const callbackUrl = "https://api.ihmhealth.in/getPgRes";
+    // const callbackUrl = "http://localhost:3000/getPgRes";
+    const channelId = "W";
+    // const spURL = "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1"; //for testing 
+    const spURL = "https://securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1";
+    const mcc = "5666";
+    const transData = new Date();
 
-      // Construct the string for request...
-      // const stringForRequest = `payerName=${payerName}&payerEmail=${payerEmail}&payerAddress=${payerAddress}&payerMobile=${payerMobile}&clientTxnId=${clientTxnId}&amount=${amount}&clientCode=${clientCode}&transUserName=${transUserName}&transUserPassword=${transUserPassword}&callbackUrl=${callbackUrl}&channelId=${channelId}&mcc=${mcc}&transData=${transData}`;
-      // Construct the string for request...
-      const stringForRequest = `payerName=${payerName}&payerEmail=${payerEmail}&payerAddress=${JSON.stringify(payerAddress)}&payerMobile=${payerMobile}&clientTxnId=${clientTxnId}&amount=${amount}&clientCode=${clientCode}&transUserName=${transUserName}&transUserPassword=${transUserPassword}&callbackUrl=${callbackUrl}&channelId=${channelId}&mcc=${mcc}&transData=${transData}`;
+    // Construct the string for request...
+    // const stringForRequest = `payerName=${payerName}&payerEmail=${payerEmail}&payerAddress=${payerAddress}&payerMobile=${payerMobile}&clientTxnId=${clientTxnId}&amount=${amount}&clientCode=${clientCode}&transUserName=${transUserName}&transUserPassword=${transUserPassword}&callbackUrl=${callbackUrl}&channelId=${channelId}&mcc=${mcc}&transData=${transData}`;
+    // Construct the string for request...
+    const stringForRequest = `payerName=${payerName}&payerEmail=${payerEmail}&payerAddress=${JSON.stringify(payerAddress)}&payerMobile=${payerMobile}&clientTxnId=${clientTxnId}&amount=${amount}&clientCode=${clientCode}&transUserName=${transUserName}&transUserPassword=${transUserPassword}&callbackUrl=${callbackUrl}&channelId=${channelId}&mcc=${mcc}&transData=${transData}`;
 
-      // Encrypt the stringForRequest
-      const encryptedStringForRequest = encrypt(stringForRequest);
-      console.log("client transaction Id :",clientTxnId)
+    // Encrypt the stringForRequest
+    const encryptedStringForRequest = encrypt(stringForRequest);
+    console.log("client transaction Id :", clientTxnId)
 
-      console.log("encrypted data :", encryptedStringForRequest)
-      // Send the data to the frontend
-      res.json({
-          spURL: spURL,
-          encData: encryptedStringForRequest,
-          clientCode: clientCode
-      });
+    console.log("encrypted data :", encryptedStringForRequest)
+    // Send the data to the frontend
+    res.json({
+      spURL: spURL,
+      encData: encryptedStringForRequest,
+      clientCode: clientCode
+    });
   } catch (error) {
-      console.error('Error:', error.message);
-      res.status(500).send("Internal Server Error");
+    console.error('Error:', error.message);
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -108,7 +109,7 @@ app.post("/getPgRes", async (req, res) => {
     });
     req.on("end", async function () {
       console.log("sabpaisa response :: " + body);
-      
+
       // Decrypt the received encrypted response
       var decryptedResponse = decrypt(decodeURIComponent(body.split("&")[1].split("=")[1]));
       console.log("decryptedResponse :: " + decryptedResponse);
@@ -122,3 +123,47 @@ app.post("/getPgRes", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+
+let transporter = nodemailer.createTransport({
+  host: 'smtp.hostinger.com',
+  port: 465, // or 465 for secure connection
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+// const transporter = nodemailer.createTransport({
+//   service: 'Gmail',
+//   auth: {
+//     user: process.env.EMAIL_USERNAME,
+//     pass: process.env.EMAIL_PASSWORD,
+//   }
+// });
+
+// Endpoint to handle sending the email
+app.post('/send-email', async (req, res) => {
+  const { to, subject, body } = req.body;
+
+  // Convert the 'to' array into a comma-separated string
+  const toAddresses = Array.isArray(to) ? to.join(', ') : to;
+
+  let mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to: toAddresses,
+    subject: subject,
+    html: body, // Use `html` for formatted content
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.log('Error:', error);
+    res.status(500).json({ message: 'Failed to send email', error: error.message });
+  }
+});
+

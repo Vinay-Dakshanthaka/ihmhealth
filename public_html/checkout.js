@@ -163,10 +163,127 @@ if (urlParams.has('decryptedResponse')) {
     }
 }
 
+// async function handlePaymentResponse(decryptedResponse, currentDate, currentTime) {
+//     try {
+//         showOverlay();
+//         // Retrieve stored UID from local storage
+//         const currentUserUID = localStorage.getItem('currentUserUID');
+//         if (!currentUserUID) {
+//             console.error('Error: currentUserUID is null or undefined.');
+//             displayMessage('Error processing payment response. Please try again.', 'danger');
+//             return;
+//         }
+
+//         // Decode the URL-encoded decryptedResponse
+//         const decodedResponse = decodeURIComponent(decryptedResponse);
+
+//         // console.log("Decoded Response :", decodedResponse)
+
+//         // Split the decoded response into key-value pairs
+//         const keyValuePairs = decodedResponse.split('&');
+
+//         // Initialize an empty object to store the parsed response
+//         const response = {};
+
+//         // Iterate over the key-value pairs and populate the response object
+//         keyValuePairs.forEach(pair => {
+//             const [key, value] = pair.split('=');
+//             response[key] = value;
+//         });
+
+//         // Log the parsed response
+//         // console.log('Parsed Response:', response);
+
+//         // Extract the paidAmount value from the response
+//         const paidAmount = parseFloat(response.paidAmount); // Assuming paidAmount is a float value
+
+//         // Now you can access individual values using response.keyName
+
+//         if (response.status === 'SUCCESS') {
+//             // Payment successful
+//             const addressId = localStorage.getItem('addressId');
+
+//             // Update order details in Firestore
+//             const orderId = generateOrderId(); // Assume a function to generate unique order IDs
+//             const cartSnapshot = await getDocs(collection(firestore, 'users', currentUserUID, 'cart'));
+//             let cartList = cartSnapshot.docs.map(doc => {
+//                 const cartItem = doc.data();
+//                 return {
+//                     ...cartItem,
+//                     name: "", // Initialize product name
+//                 };
+//             });
+
+//             try {
+//                 await Promise.all(cartList.map(async (cartItem) => {
+//                     const productSnapshot = await getDocs(query(collection(firestore, 'products'), where('productId', '==', cartItem.productId)));
+//                     const productDoc = productSnapshot.docs[0];
+//                     const productData = productDoc.data();
+//                     cartItem.name = productData.name; // Store product name
+//                 }));
+
+//                 cartList = await Promise.all(cartList.map(async (cartItem) => {
+//                     const productSnapshot = await getDocs(query(collection(firestore, 'products'), where('productId', '==', cartItem.productId)));
+//                     const productDoc = productSnapshot.docs[0];
+//                     if (productDoc.exists) {
+//                         const productData = productDoc.data();
+//                         cartItem.price = productData.price;
+//                         cartItem.name = productData.name;
+//                     }
+//                     return cartItem;
+//                 }));
+
+//                 await setDoc(doc(collection(firestore, 'users', currentUserUID, 'orders'), orderId), {
+//                     orderId: orderId,
+//                     productsDetails: cartList,
+//                     bill: paidAmount, // Set bill value to paidAmount which will be present in the query params got as response
+//                     addressRef: doc(firestore, 'users', currentUserUID, 'addresses', addressId),
+//                     mop: ['SabPaisa', response],
+//                     status: 'Order Confirmed',
+//                     orderDate: currentDate.toLocaleDateString(),
+//                     orderTime: currentTime,
+//                 });
+//                 // console.log("Order details stored successfully.");
+//                 // console.log(" response :", response);
+//             } catch (error) {
+//                 console.error("Error storing order details:", error);
+//             }
+
+//             // Update product quantities and delete items from cart
+//             const allPromises = cartSnapshot.docs.map(async (cartItem) => {
+//                 const productSnapshot = await getDocs(query(collection(firestore, 'products'), where('productId', '==', cartItem.data().productId)));
+//                 const productDoc = productSnapshot.docs[0];
+//                 await updateDoc(productDoc.ref, { quantity: productDoc.data().quantity - 1 });
+//                 await deleteDoc(cartItem.ref);
+//             });
+//             await Promise.all(allPromises);
+
+//             // Update cart UI
+//             await updateCart();
+
+//             hideOverlay();
+//             // Display success message
+//             displayMessage('Payment Successful!', 'success');
+//             hideCheckout();
+//             // Display order confirmation animation
+//             showCompleteOrderGif();
+//         } else {
+//             // Payment failed
+//             displayMessage('Payment Failed. Please try again.', 'danger');
+//             setTimeout(() => {
+//                 window.location.href = 'cart.html   '
+//             }, 3000);
+//         }
+//     } catch (error) {
+//         console.error('Error handling payment response:', error);
+//         displayMessage('Error processing payment response. Please try again.', 'danger');
+//         // Handle error if needed
+//     }
+// }
+
 async function handlePaymentResponse(decryptedResponse, currentDate, currentTime) {
     try {
         showOverlay();
-        // Retrieve stored UID from local storage
         const currentUserUID = localStorage.getItem('currentUserUID');
         if (!currentUserUID) {
             console.error('Error: currentUserUID is null or undefined.');
@@ -174,44 +291,24 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
             return;
         }
 
-        // Decode the URL-encoded decryptedResponse
         const decodedResponse = decodeURIComponent(decryptedResponse);
-
-        // console.log("Decoded Response :", decodedResponse)
-
-        // Split the decoded response into key-value pairs
         const keyValuePairs = decodedResponse.split('&');
-
-        // Initialize an empty object to store the parsed response
         const response = {};
 
-        // Iterate over the key-value pairs and populate the response object
         keyValuePairs.forEach(pair => {
             const [key, value] = pair.split('=');
             response[key] = value;
         });
 
-        // Log the parsed response
-        // console.log('Parsed Response:', response);
-
-        // Extract the paidAmount value from the response
-        const paidAmount = parseFloat(response.paidAmount); // Assuming paidAmount is a float value
-
-        // Now you can access individual values using response.keyName
+        const paidAmount = parseFloat(response.paidAmount);
 
         if (response.status === 'SUCCESS') {
-            // Payment successful
             const addressId = localStorage.getItem('addressId');
-
-            // Update order details in Firestore
-            const orderId = generateOrderId(); // Assume a function to generate unique order IDs
+            const orderId = generateOrderId();
             const cartSnapshot = await getDocs(collection(firestore, 'users', currentUserUID, 'cart'));
             let cartList = cartSnapshot.docs.map(doc => {
                 const cartItem = doc.data();
-                return {
-                    ...cartItem,
-                    name: "", // Initialize product name
-                };
+                return { ...cartItem, name: "" };
             });
 
             try {
@@ -219,7 +316,7 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
                     const productSnapshot = await getDocs(query(collection(firestore, 'products'), where('productId', '==', cartItem.productId)));
                     const productDoc = productSnapshot.docs[0];
                     const productData = productDoc.data();
-                    cartItem.name = productData.name; // Store product name
+                    cartItem.name = productData.name;
                 }));
 
                 cartList = await Promise.all(cartList.map(async (cartItem) => {
@@ -236,20 +333,17 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
                 await setDoc(doc(collection(firestore, 'users', currentUserUID, 'orders'), orderId), {
                     orderId: orderId,
                     productsDetails: cartList,
-                    bill: paidAmount, // Set bill value to paidAmount which will be present in the query params got as response
+                    bill: paidAmount,
                     addressRef: doc(firestore, 'users', currentUserUID, 'addresses', addressId),
                     mop: ['SabPaisa', response],
                     status: 'Order Confirmed',
                     orderDate: currentDate.toLocaleDateString(),
                     orderTime: currentTime,
                 });
-                // console.log("Order details stored successfully.");
-                // console.log(" response :", response);
             } catch (error) {
                 console.error("Error storing order details:", error);
             }
 
-            // Update product quantities and delete items from cart
             const allPromises = cartSnapshot.docs.map(async (cartItem) => {
                 const productSnapshot = await getDocs(query(collection(firestore, 'products'), where('productId', '==', cartItem.data().productId)));
                 const productDoc = productSnapshot.docs[0];
@@ -258,29 +352,96 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
             });
             await Promise.all(allPromises);
 
-            // Update cart UI
             await updateCart();
-
             hideOverlay();
-            // Display success message
             displayMessage('Payment Successful!', 'success');
             hideCheckout();
-            // Display order confirmation animation
             showCompleteOrderGif();
+
+            try {
+                await sendOrderEmailToAdmin(orderId, addressId, cartList, paidAmount, currentDate, currentTime, currentUserUID);
+            } catch (emailError) {
+                console.error('Failed to send email to admin:', emailError.message);
+            }
         } else {
-            // Payment failed
             displayMessage('Payment Failed. Please try again.', 'danger');
             setTimeout(() => {
-                window.location.href = 'cart.html   '
+                window.location.href = 'cart.html';
             }, 3000);
         }
     } catch (error) {
         console.error('Error handling payment response:', error);
         displayMessage('Error processing payment response. Please try again.', 'danger');
-        // Handle error if needed
     }
 }
 
+async function sendOrderEmailToAdmin(orderId, addressId, cartList, paidAmount, currentDate, currentTime,currentUserUID) {
+    try {
+        const addressSnapshot = await getDoc(doc(firestore, 'users', auth.currentUser.uid, 'addresses', addressId));
+        const addressData = addressSnapshot.data();
+
+        // const response = await fetch('http://localhost:3000/send-email', {
+        const response = await fetch('https://api.ihmhealth.in/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                // to: ['sales@ihmhealth.in', 'distribution@ihmhealth.in'],
+                 to: ['sales@ihmhealth.in', 'distribution@ihmhealth.in'],
+                subject: 'New Order Placed',
+                body: `
+                 <div style="font-family: Arial, sans-serif; color: #333;">
+                <div style="text-align: center;">
+                    <img src="https://ihmhealth.in/assets/images/logo.ico" alt="IHM Health" style="width: 50px; height: 50px; margin-bottom: 20px;">
+                </div>
+                <h2 style="color: #4CAF50; text-align: center;">New Order Placed</h2>
+                <p style="font-size: 16px; line-height: 1.5;"><strong>Order ID:</strong> ${orderId}</p>
+                <p style="font-size: 16px; line-height: 1.5;"><strong>Order Date:</strong> ${currentDate.toLocaleDateString()}</p>
+                <p style="font-size: 16px; line-height: 1.5;"><strong>Order Time:</strong> ${currentTime}</p>
+                <p style="font-size: 16px; line-height: 1.5;"><strong>Paid Amount:</strong> ₹${paidAmount.toFixed(2)}</p>
+                <p style="font-size: 16px; line-height: 1.5;"><strong>Delivery Address:</strong></br>
+                      ${addressData.fullName}<br>
+            ${addressData.houseBuilding}, ${addressData.roadAreaColony}<br>
+            ${addressData.city}, ${addressData.state}, ${addressData.pinCode}<br>
+            Mobile: ${addressData.mobileNumber}
+                </p>
+                
+                <h3 style="color: #333; margin-top: 20px;">Ordered Products</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Product Name</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${cartList.map(product => `
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${product.name}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">₹${product.price}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <p style="font-size: 16px; line-height: 1.5; margin-top: 20px;">
+                    <a href="https://ihmhealth.in/order-details.html?orderId=${orderId}&userId=${currentUserUID}" style="color: #4CAF50; text-decoration: none;">See Order Details</a>
+                </p>
+            </div>
+                    `
+            })
+        });
+        // console.log("link ", `https://ihmhealth.in/orderlist.html?userId=${currentUserUID}`)
+        if (!response.ok) {
+            throw new Error('Failed to send email');
+        }
+
+        // console.log('Email sent to admin successfully.');
+    } catch (error) {
+        console.error('Error sending email to admin:', error);
+    }
+}
 
 
 
@@ -1446,7 +1607,6 @@ const addressData = addressSnapshot.data();
         const clientCode = "PAKH00";
         // const clientCode = "TM001";
 
-
         // Display overlay
         showOverlay();
 
@@ -1500,10 +1660,39 @@ const addressData = addressSnapshot.data();
 
     } catch (error) {
         console.error('Error:', error.message);
+        console.log(error)
         // Handle error if needed
     }
 }
 
+// Function to send an email to the admin with order details
+// async function sendOrderEmailToAdmin(payerName, payerEmail, payerMobile, addressData, transactionId) {
+//     const response = await fetch('http://localhost:3000/send-email', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//             to: , 
+//             subject: 'New Order Placed',
+//             body: `
+//                 <h2>New Order Placed</h2>
+//                 <p><strong>Order Details:</strong></p>
+//                 <p><strong>Payer Name:</strong> ${payerName}</p>
+//                 <p><strong>Payer Email:</strong> ${payerEmail}</p>
+//                 <p><strong>Payer Mobile:</strong> ${payerMobile}</p>
+//                 <p><strong>Delivery Address:</strong> ${addressData}</p>
+//                 <p><strong>Transaction ID:</strong> ${transactionId}</p>
+//             `
+//         })
+//     });
+
+//     if (!response.ok) {
+//         throw new Error('Failed to send email');
+//     }
+
+//     console.log('Email sent to admin successfully.');
+// }
 
 
 
