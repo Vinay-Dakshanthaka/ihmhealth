@@ -166,4 +166,26 @@ app.post('/send-email', async (req, res) => {
     res.status(500).json({ message: 'Failed to send email', error: error.message });
   }
 });
+app.post('/send-thankyou-email', async (req, res) => {
+  const { to, subject, body } = req.body;
+console.log("to email ", to)
+  // Convert the 'to' array into a comma-separated string
+  const toAddresses = Array.isArray(to) ? to.join(', ') : to;
+  console.log('to address ' ,toAddresses)
+  let mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to: toAddresses,
+    subject: subject,
+    html: body, // Use `html` for formatted content
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.log('Error:', error);
+    res.status(500).json({ message: 'Failed to send email', error: error.message });
+  }
+});
 

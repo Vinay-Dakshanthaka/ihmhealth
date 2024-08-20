@@ -92,7 +92,7 @@ confirmLogoutBtn.addEventListener("click", () => {
         });
 });
 //****************************************************************************************
-
+let userEmail = "";
 //*****************************loading and role access********************************
 //check loggedIn or loggedOut state
 // Use onAuthStateChanged to control access to admin dashboard
@@ -128,6 +128,7 @@ onAuthStateChanged(auth, async (user) => {
                 roleAccess(userData.role);
                 updateProfileName(userData.role, userData.firstName);
                 updateProfilePicture(userData.role, userData.profilePicture);
+                userEmail =userData.email;
             }
         });
     } else {
@@ -363,6 +364,12 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
             } catch (emailError) {
                 console.error('Failed to send email to admin:', emailError.message);
             }
+            try {
+                const customerEmail = auth.currentUser.email; // Assuming the user's email is stored in auth.currentUser.email
+                await sendThankYouEmailToCustomer(orderId, addressId, cartList, paidAmount, currentDate, currentTime, userEmail);
+            } catch (emailError) {
+                console.error('Failed to send thank you email to customer:', emailError.message);
+            }
         } else {
             displayMessage('Payment Failed. Please try again.', 'danger');
             setTimeout(() => {
@@ -443,6 +450,70 @@ async function sendOrderEmailToAdmin(orderId, addressId, cartList, paidAmount, c
     }
 }
 
+async function sendThankYouEmailToCustomer(orderId, addressId, cartList, paidAmount, currentDate, currentTime, customerEmail) {
+    try {
+        const addressSnapshot = await getDoc(doc(firestore, 'users', auth.currentUser.uid, 'addresses', addressId));
+        const addressData = addressSnapshot.data();
+
+        const response = await fetch('https://api.ihmhealth.in/send-thankyou-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                to: [userEmail],
+                subject: 'Thank You for Your Order!',
+                body: `
+                <div style="font-family: Arial, sans-serif; color: #333;">
+                    <div style="text-align: center;">
+                        <img src="https://ihmhealth.in/assets/images/logo.ico" alt="IHM Health" style="width: 50px; height: 50px; margin-bottom: 20px;">
+                    </div>
+                    <h2 style="color: #4CAF50; text-align: center;">Thank You for Your Order!</h2>
+                    <p style="font-size: 16px; line-height: 1.5;">Dear ${addressData.fullName},</p>
+                    <p style="font-size: 16px; line-height: 1.5;">We are delighted to inform you that we have received your order.</p>
+                    <p style="font-size: 16px; line-height: 1.5;"><strong>Order ID:</strong> ${orderId}</p>
+                    <p style="font-size: 16px; line-height: 1.5;"><strong>Order Date:</strong> ${currentDate.toLocaleDateString()}</p>
+                    <p style="font-size: 16px; line-height: 1.5;"><strong>Order Time:</strong> ${currentTime}</p>
+                    <p style="font-size: 16px; line-height: 1.5;"><strong>Paid Amount:</strong> ₹${paidAmount.toFixed(2)}</p>
+                    
+                    <h3 style="color: #333; margin-top: 20px;">Ordered Products</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Product Name</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${cartList.map(product => `
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${product.name}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">₹${product.price}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <p style="font-size: 16px; line-height: 1.5; margin-top: 20px;">
+                        Your order is being processed and will be shipped to you soon.:
+                                            <a href="https://ihmhealth.in/order-details.html?orderId=${orderId}&userId=${currentUserUID}" style="color: #4CAF50; text-decoration: none;">See Order Details</a>
+                    </p>
+
+                    <p style="font-size: 16px; line-height: 1.5;">Thank you for choosing us!</p>
+                </div>
+                `
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to send email');
+        }
+
+        console.log('Thank you email sent to customer successfully.');
+    } catch (error) {
+        console.error('Error sending thank you email to customer:', error);
+    }
+}
 
 
 function roleAccess(role) {
