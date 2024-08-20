@@ -366,7 +366,7 @@ async function handlePaymentResponse(decryptedResponse, currentDate, currentTime
             }
             try {
                 const customerEmail = auth.currentUser.email; // Assuming the user's email is stored in auth.currentUser.email
-                await sendThankYouEmailToCustomer(orderId, addressId, cartList, paidAmount, currentDate, currentTime, userEmail);
+                await sendThankYouEmailToCustomer(orderId, addressId, cartList, paidAmount, currentDate, currentTime, userEmail,currentUserUID);
             } catch (emailError) {
                 console.error('Failed to send thank you email to customer:', emailError.message);
             }
@@ -450,7 +450,7 @@ async function sendOrderEmailToAdmin(orderId, addressId, cartList, paidAmount, c
     }
 }
 
-async function sendThankYouEmailToCustomer(orderId, addressId, cartList, paidAmount, currentDate, currentTime, customerEmail) {
+async function sendThankYouEmailToCustomer(orderId, addressId, cartList, paidAmount, currentDate, currentTime, customerEmail,currentUserUID) {
     try {
         const addressSnapshot = await getDoc(doc(firestore, 'users', auth.currentUser.uid, 'addresses', addressId));
         const addressData = addressSnapshot.data();
